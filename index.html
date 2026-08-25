@@ -56,10 +56,12 @@
   }
   h1 {
     margin: 0;
-    letter-spacing: 0.4em;
+    letter-spacing: 0.15em;
     font-family: "Press Start 2P", "Orbitron", monospace;
     font-weight: 400;
-    font-size: 2.2rem;
+    font-size: clamp(0.9rem, 3.6vw, 1.7rem);
+    max-width: 90vw;
+    text-align: center;
     background: linear-gradient(180deg, var(--cyan) 0%, var(--magenta) 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -154,7 +156,7 @@
 </head>
 <body>
   <button id="muteBtn" type="button" aria-label="Mute music" title="Mute music">🔊</button>
-  <h1>PONG</h1>
+  <h1>This shit took me 5 mins</h1>
   <div id="wrap">
     <canvas id="game" width="800" height="500"></canvas>
     <div id="overlay">
