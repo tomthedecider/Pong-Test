@@ -41,8 +41,7 @@ jobs:
       - name: Validate HTML
         run: >-
           html5validator --root .
-          --ignore 'Property "color-scheme" doesn'
-          --ignore 'Property "inset" doesn'
+          --ignore 'Property "color-scheme" doesn' 'Property "inset" doesn'
 
   deploy:
     name: Deploy to GitHub Pages
