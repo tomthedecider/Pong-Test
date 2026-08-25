@@ -73,6 +73,7 @@
   }
   #wrap {
     position: relative;
+    max-width: 94vw;
   }
   canvas {
     background: radial-gradient(ellipse 120% 100% at 50% 100%, #180430 0%, var(--bg-deeper) 70%);
@@ -80,6 +81,13 @@
     border-radius: 8px;
     display: block;
     touch-action: none;
+    /* The canvas's internal drawing resolution stays 800x500 (set via the
+       width/height attributes in the markup); this only scales how large
+       it's displayed, so it fits narrow viewports instead of overflowing
+       and getting clipped by body's overflow-x: hidden. */
+    width: min(800px, 94vw);
+    height: auto;
+    aspect-ratio: 800 / 500;
     box-shadow:
       0 0 12px rgba(5, 247, 242, 0.7),
       0 0 32px rgba(162, 56, 255, 0.45),
