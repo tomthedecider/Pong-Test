@@ -4,11 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pong</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root {
     color-scheme: dark;
+    --cyan: #05f7f2;
+    --magenta: #ff2ec4;
+    --purple: #a238ff;
+    --yellow: #f9f002;
+    --bg-deep: #0a0118;
+    --bg-deeper: #05010d;
   }
   * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+  }
   body {
     margin: 0;
     min-height: 100vh;
@@ -16,26 +28,60 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    background: #0b0f14;
-    color: #e6edf3;
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    gap: 22px;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(162, 56, 255, 0.35), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(5, 247, 242, 0.15), transparent 70%),
+      repeating-linear-gradient(0deg, rgba(255, 46, 196, 0.06) 0px, rgba(255, 46, 196, 0.06) 1px, transparent 1px, transparent 28px),
+      linear-gradient(180deg, var(--bg-deeper) 0%, var(--bg-deep) 50%, #12002b 100%);
+    color: #d9f7ff;
+    font-family: "Orbitron", system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.25) 0px,
+      rgba(0, 0, 0, 0.25) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+    mix-blend-mode: overlay;
+    z-index: 5;
   }
   h1 {
     margin: 0;
-    letter-spacing: 0.3em;
-    font-weight: 600;
-    font-size: 1.5rem;
+    letter-spacing: 0.4em;
+    font-family: "Press Start 2P", "Orbitron", monospace;
+    font-weight: 400;
+    font-size: 2.2rem;
+    background: linear-gradient(180deg, var(--cyan) 0%, var(--magenta) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow:
+      0 0 8px rgba(5, 247, 242, 0.6),
+      0 0 24px rgba(255, 46, 196, 0.5);
+    padding-bottom: 4px;
   }
   #wrap {
     position: relative;
   }
   canvas {
-    background: #05080b;
-    border: 2px solid #2b3542;
-    border-radius: 6px;
+    background: radial-gradient(ellipse 120% 100% at 50% 100%, #180430 0%, var(--bg-deeper) 70%);
+    border: 2px solid var(--cyan);
+    border-radius: 8px;
     display: block;
     touch-action: none;
+    box-shadow:
+      0 0 12px rgba(5, 247, 242, 0.7),
+      0 0 32px rgba(162, 56, 255, 0.45),
+      inset 0 0 24px rgba(255, 46, 196, 0.15);
   }
   #overlay {
     position: absolute;
@@ -44,30 +90,46 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    background: rgba(5, 8, 11, 0.75);
-    border-radius: 6px;
+    gap: 18px;
+    background: rgba(8, 2, 20, 0.85);
+    border-radius: 8px;
     text-align: center;
     padding: 16px;
   }
   #overlay.hidden { display: none; }
-  #overlay p { margin: 0; opacity: 0.8; max-width: 320px; }
+  #overlay p {
+    margin: 0;
+    max-width: 340px;
+    line-height: 1.7;
+    color: #b9e7ff;
+    text-shadow: 0 0 6px rgba(5, 247, 242, 0.4);
+  }
   button {
-    background: #58a6ff;
-    color: #05080b;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    color: #05010d;
     border: none;
     border-radius: 4px;
-    padding: 10px 22px;
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 12px 28px;
+    font-family: "Press Start 2P", "Orbitron", monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    font-weight: 400;
     cursor: pointer;
+    box-shadow: 0 0 14px rgba(255, 46, 196, 0.7), 0 0 28px rgba(5, 247, 242, 0.4);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
   }
-  button:hover { background: #79b8ff; }
+  button:hover {
+    transform: translateY(-1px) scale(1.03);
+    box-shadow: 0 0 20px rgba(255, 46, 196, 0.9), 0 0 40px rgba(5, 247, 242, 0.6);
+  }
   #hint {
-    opacity: 0.6;
-    font-size: 0.85rem;
+    opacity: 0.85;
+    font-size: 0.8rem;
     text-align: center;
     max-width: 480px;
+    color: var(--cyan);
+    text-shadow: 0 0 6px rgba(5, 247, 242, 0.5);
+    letter-spacing: 0.03em;
   }
 </style>
 </head>
@@ -94,13 +156,21 @@
   const H = canvas.height;
   const WIN_SCORE = 7;
 
+  const NEON_CYAN = '#05f7f2';
+  const NEON_MAGENTA = '#ff2ec4';
+  const NEON_YELLOW = '#f9f002';
+  const GRID_COLOR = 'rgba(162, 56, 255, 0.25)';
+
   const PADDLE_W = 12;
   const PADDLE_H = 90;
-  const PADDLE_SPEED = 6.5;
+  // Speeds are ~30% slower than the original arcade pace.
+  const PADDLE_SPEED = 4.55;
   const BALL_SIZE = 12;
-  const BASE_BALL_SPEED = 5;
+  const BASE_BALL_SPEED = 3.5;
+  const MAX_BALL_SPEED = 9.8;
 
   let state = 'idle'; // idle | playing | paused | over
+  let gridOffset = 0;
 
   const left = { x: 20, y: H / 2 - PADDLE_H / 2, w: PADDLE_W, h: PADDLE_H, score: 0, dy: 0 };
   const right = { x: W - 20 - PADDLE_W, y: H / 2 - PADDLE_H / 2, w: PADDLE_W, h: PADDLE_H, score: 0, dy: 0 };
@@ -209,7 +279,7 @@
   function bounceOffPaddle(paddle) {
     const relativeIntersect = (ball.y - (paddle.y + paddle.h / 2)) / (paddle.h / 2);
     const bounceAngle = relativeIntersect * (Math.PI / 3); // max 60 deg
-    const speed = Math.min(Math.hypot(ball.vx, ball.vy) * 1.05, 14);
+    const speed = Math.min(Math.hypot(ball.vx, ball.vy) * 1.05, MAX_BALL_SPEED);
     const direction = paddle === left ? 1 : -1;
     ball.vx = Math.cos(bounceAngle) * speed * direction;
     ball.vy = Math.sin(bounceAngle) * speed;
@@ -227,41 +297,96 @@
     return false;
   }
 
+  function drawGrid() {
+    // Faint synthwave floor grid with a slow horizontal drift.
+    ctx.save();
+    ctx.strokeStyle = GRID_COLOR;
+    ctx.lineWidth = 1;
+
+    const spacingX = 40;
+    const offset = gridOffset % spacingX;
+    for (let x = -spacingX; x <= W + spacingX; x += spacingX) {
+      ctx.beginPath();
+      ctx.moveTo(x + offset, 0);
+      ctx.lineTo(x + offset, H);
+      ctx.stroke();
+    }
+
+    const spacingY = 40;
+    for (let y = 0; y <= H; y += spacingY) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawNeonRect(x, y, w, h, color) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 18;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
+
   function draw() {
     ctx.clearRect(0, 0, W, H);
+    drawGrid();
 
-    ctx.strokeStyle = '#2b3542';
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 46, 196, 0.8)';
+    ctx.shadowColor = NEON_MAGENTA;
+    ctx.shadowBlur = 10;
     ctx.setLineDash([8, 10]);
     ctx.beginPath();
     ctx.moveTo(W / 2, 0);
     ctx.lineTo(W / 2, H);
     ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.restore();
 
-    ctx.fillStyle = '#e6edf3';
-    ctx.fillRect(left.x, left.y, left.w, left.h);
-    ctx.fillRect(right.x, right.y, right.w, right.h);
+    drawNeonRect(left.x, left.y, left.w, left.h, NEON_CYAN);
+    drawNeonRect(right.x, right.y, right.w, right.h, NEON_MAGENTA);
 
+    ctx.save();
+    ctx.fillStyle = NEON_YELLOW;
+    ctx.shadowColor = NEON_YELLOW;
+    ctx.shadowBlur = 20;
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
-    ctx.font = 'bold 48px system-ui, sans-serif';
+    ctx.save();
+    ctx.font = '48px "Press Start 2P", monospace';
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#8b949e';
-    ctx.fillText(left.score, W / 2 - 60, 60);
-    ctx.fillText(right.score, W / 2 + 60, 60);
+    ctx.fillStyle = NEON_CYAN;
+    ctx.shadowColor = NEON_CYAN;
+    ctx.shadowBlur = 14;
+    ctx.globalAlpha = 0.85;
+    ctx.fillText(left.score, W / 2 - 100, 60);
+    ctx.fillStyle = NEON_MAGENTA;
+    ctx.shadowColor = NEON_MAGENTA;
+    ctx.fillText(right.score, W / 2 + 100, 60);
+    ctx.restore();
 
     if (state === 'paused') {
-      ctx.fillStyle = 'rgba(230,237,243,0.9)';
-      ctx.font = 'bold 28px system-ui, sans-serif';
+      ctx.save();
+      ctx.fillStyle = '#f9f002';
+      ctx.shadowColor = NEON_YELLOW;
+      ctx.shadowBlur = 16;
+      ctx.font = '28px "Press Start 2P", monospace';
+      ctx.textAlign = 'center';
       ctx.fillText('PAUSED', W / 2, H / 2);
+      ctx.restore();
     }
   }
 
   function loop() {
     update();
     draw();
+    gridOffset += 0.3;
     requestAnimationFrame(loop);
   }
 
