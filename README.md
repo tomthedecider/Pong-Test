@@ -1,6 +1,12 @@
 # Pong-Test
 Testing out coding abilities of Claude
 
+## Projects
+
+- [`ivyrox/`](ivyrox/) — a full-stack guitar-lesson web app (React + Express
+  + Prisma). See [`ivyrox/README.md`](ivyrox/README.md) for setup, running,
+  and deployment instructions.
+
 ## Play
 
 A single-file, dependency-free Pong game lives in [`index.html`](index.html).
